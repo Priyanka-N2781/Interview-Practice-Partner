@@ -25,15 +25,8 @@ It provides an end-to-end interview experience including a setup phase, the inte
 
 System Architecture
 
-Frontend (HTML, CSS, JavaScript)
-        ↓
-Flask Backend (Python)
-        ↓
-Google Gemini API (AI Engine)
-        ↓
-SQLite Database (Storage)
-        ↓
-Response returned to frontend
+<img width="1024" height="559" alt="image" src="https://github.com/user-attachments/assets/32d9cb1b-5395-4e2d-9c69-97e79f44d837" />
+
 
 **Interview Workflow**
 
@@ -78,23 +71,40 @@ InterviewPracticePartner/
 └── README.md                  # Project Documentation
 ```
 
-**Tech Stack**
 
-**Frontend:**
+---
 
-HTML5
-CSS3
-JavaScript
-Web Speech API
+## Tech Stack
 
-**Backend:**
+### Frontend
+- HTML5
+- CSS3
+- JavaScript
+- Web Speech API
 
-Python Flask
-SQLite
+### Backend
+- Python Flask
+- SQLite
 
-**AI Integration:**
+### AI Integration
+- Google Gemini API
 
-Google Gemini API
+---
+
+## Setup Instructions
+
+### Prerequisites
+- Python 3.8+
+- Node.js (Optional, only for local static server)
+- Google Gemini API Key
+
+---
+
+### Backend Setup
+
+```bash
+cd InterviewPracticePartner/backend
+pip install -r requirements.txt
 
 ## Setup Instructions
 
