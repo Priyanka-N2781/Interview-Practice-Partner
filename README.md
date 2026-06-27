@@ -1,5 +1,9 @@
 # Interview Practice Partner
 
+<img width="1911" height="845" alt="image" src="https://github.com/user-attachments/assets/1a96593f-9e45-47a2-bc4c-03fb697fef98" />
+
+🌐 Live Demo: https://priyanka-n2781.github.io/Interview-Practice-Partner/frontend/login.html
+
 An AI-powered full-stack web application designed to help candidates prepare for their dream jobs by conducting realistic, interactive mock interviews with real-time feedback.
 
 ## Project Overview
@@ -19,8 +23,42 @@ It provides an end-to-end interview experience including a setup phase, the inte
 - **Downloadable PDF Report**: Easily save your feedback as a PDF using one click.
 - **Beginner Friendly Tech Stack**: Simple HTML/CSS/JS frontend completely decoupled from a Python Flask backend.
 
+System Architecture
+
+Frontend (HTML, CSS, JavaScript)
+        ↓
+Flask Backend (Python)
+        ↓
+Google Gemini API (AI Engine)
+        ↓
+SQLite Database (Storage)
+        ↓
+Response returned to frontend
+
+**Interview Workflow**
+
+User selects job role and experience level
+Interview session is initiated
+AI generates context-aware questions
+User responds via voice or text
+AI evaluates responses in real time
+Final feedback report is generated
+Results are displayed and optionally downloaded
+
 ## Screenshots
-*(Add screenshots of the landing page, interview UI, and feedback report here)*
+
+<img width="1912" height="871" alt="image" src="https://github.com/user-attachments/assets/02af25ed-5d2a-41f5-b3e2-a9e801c6d59f" />
+
+<img width="1877" height="900" alt="image" src="https://github.com/user-attachments/assets/9dad9792-84e3-4cbe-b6c3-d10bd6f6192b" />
+
+<img width="1918" height="868" alt="image" src="https://github.com/user-attachments/assets/e9727d40-2182-4271-aed2-bb87dc2f034b" />
+
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/68013a25-911b-4d58-8f59-2376565b870b" />
+
+<img width="1913" height="890" alt="image" src="https://github.com/user-attachments/assets/b6c56c2a-e5d9-4959-af79-b110a9b1c894" />
+
+<img width="1918" height="853" alt="image" src="https://github.com/user-attachments/assets/f4e9d15f-fb6c-443f-a078-8a5393ef2e63" />
+
 
 ## Folder Structure
 
@@ -39,6 +77,24 @@ InterviewPracticePartner/
 │   └── script.js              # Frontend logic (API Calls, Voice APIs, State)
 └── README.md                  # Project Documentation
 ```
+
+**Tech Stack**
+
+**Frontend:**
+
+HTML5
+CSS3
+JavaScript
+Web Speech API
+
+**Backend:**
+
+Python Flask
+SQLite
+
+**AI Integration:**
+
+Google Gemini API
 
 ## Setup Instructions
 
@@ -85,26 +141,16 @@ The application utilizes native browser Web APIs, meaning no heavy third-party a
 - **Speech-to-Text**: Uses `webkitSpeechRecognition` to transcribe the user's microphone audio into text in real-time.
 - **Text-to-Speech**: Uses `speechSynthesis` to read the AI-generated questions back to the user using the operating system's native voices.
 
-## Deployment Instructions
-
-Because the frontend and backend are decoupled via REST APIs and CORS, you must deploy them separately.
-
-### Deploying the Backend (Render)
-1. Push the code to a GitHub repository.
-2. Go to [Render](https://render.com/) and create a new **Web Service**.
-3. Connect your GitHub repository and select the `backend/` directory as the Root Directory.
-4. Set the Start Command to: `gunicorn app:app` (You may need to add `gunicorn` to your `requirements.txt`).
-5. Add your `GEMINI_API_KEY` in Render's Environment Variables section.
-6. Copy the deployed Render URL (e.g., `https://your-backend.onrender.com`).
-
-### Deploying the Frontend (Netlify)
-1. Before deploying, update `API_BASE_URL` in `frontend/script.js` to point to your deployed Render backend URL.
-2. Go to [Netlify](https://www.netlify.com/) and click **Add new site** -> **Deploy manually**.
-3. Drag and drop the `frontend/` folder into the Netlify deployment area.
-4. Your frontend is now live!
 
 ## Future Enhancements
 - User authentication and login.
 - Support for uploading resumes to tailor questions to the candidate's exact experience.
 - More specific technical coding environments (e.g., integrating a code editor for SWE roles).
 - Video analysis to provide feedback on body language and eye contact.
+
+
+**Author**
+
+Priyanka N
+GitHub: https://github.com/Priyanka-N2781
+LinkedIn: https://www.linkedin.com/in/priyanka1826
