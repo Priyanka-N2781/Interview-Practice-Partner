@@ -397,7 +397,46 @@ if (finishInterviewBtn) {
 // Initial load for interview page
 if (chatContainer && sessionStorage.getItem('interview_id')) {
     startTimer();
-    
+    wakeupAndStart();
+}
+
+async function wakeupAndStart() {
+    const overlay = document.getElementById('wakeupOverlay');
+    const countdown = document.getElementById('wakeupCountdown');
+
+    // First, do a quick ping to see if server is already awake
+    let serverReady = false;
+    try {
+        const res = await fetch(`${API_BASE_URL}/`, { method: 'GET', signal: AbortSignal.timeout(5000) });
+        serverReady = true;
+    } catch(e) {
+        serverReady = false;
+    }
+
+    if (!serverReady) {
+        // Show wakeup overlay
+        if (overlay) { overlay.style.display = 'flex'; }
+
+        let secs = 0;
+        const countTimer = setInterval(() => {
+            secs++;
+            if (countdown) countdown.innerText = `Server waking up... ${secs}s elapsed`;
+        }, 1000);
+
+        // Keep pinging until server responds
+        while (!serverReady) {
+            await new Promise(r => setTimeout(r, 4000));
+            try {
+                await fetch(`${API_BASE_URL}/`, { method: 'GET', signal: AbortSignal.timeout(5000) });
+                serverReady = true;
+            } catch(e) {}
+        }
+
+        clearInterval(countTimer);
+        if (overlay) { overlay.style.display = 'none'; }
+    }
+
+    // Server is awake — now start the interview
     if ('speechSynthesis' in window) {
         window.speechSynthesis.onvoiceschanged = function() {
             if (currentQuestionNumber === 0) fetchNextQuestion();
@@ -409,6 +448,7 @@ if (chatContainer && sessionStorage.getItem('interview_id')) {
         fetchNextQuestion();
     }
 }
+
 
 // ===== FEEDBACK PAGE LOGIC =====
 const reportDataArea = document.getElementById('reportData');
