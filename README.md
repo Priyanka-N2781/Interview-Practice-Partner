@@ -159,8 +159,9 @@ The application utilizes native browser Web APIs, meaning no heavy third-party a
 - Video analysis to provide feedback on body language and eye contact.
 
 
-**Author**
+## Author
 
 Priyanka N
-GitHub: https://github.com/Priyanka-N2781
-LinkedIn: https://www.linkedin.com/in/priyanka1826
+
+- GitHub: [Priyanka-N2781](https://github.com/Priyanka-N2781)  
+- LinkedIn: [Priyanka N](https://www.linkedin.com/in/priyanka1826)
