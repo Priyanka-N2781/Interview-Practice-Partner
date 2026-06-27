@@ -61,8 +61,6 @@ Results are displayed and optionally downloaded
 
 <img width="1918" height="868" alt="image" src="https://github.com/user-attachments/assets/e9727d40-2182-4271-aed2-bb87dc2f034b" />
 
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/68013a25-911b-4d58-8f59-2376565b870b" />
-
 <img width="1913" height="890" alt="image" src="https://github.com/user-attachments/assets/b6c56c2a-e5d9-4959-af79-b110a9b1c894" />
 
 <img width="1918" height="853" alt="image" src="https://github.com/user-attachments/assets/f4e9d15f-fb6c-443f-a078-8a5393ef2e63" />
