@@ -1,0 +1,151 @@
+:root {
+  --primary-blue: #0056b3;
+  --light-blue: #e3f2fd;
+  --dark-bg: #f8f9fa;
+  --glass-bg: rgba(255, 255, 255, 0.85);
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  color: #333;
+  min-height: 100vh;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+  padding: 2rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* Buttons */
+.btn-primary-custom {
+  background: linear-gradient(90deg, #0056b3, #007bff);
+  border: none;
+  border-radius: 50px;
+  padding: 10px 25px;
+  color: white;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary-custom:hover {
+  background: linear-gradient(90deg, #004494, #0056b3);
+  transform: scale(1.05);
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+.btn-secondary-custom {
+  background: white;
+  color: #0056b3;
+  border: 2px solid #0056b3;
+  border-radius: 50px;
+  padding: 8px 23px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-secondary-custom:hover {
+  background: #e3f2fd;
+  transform: scale(1.05);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.8s ease forwards;
+}
+
+/* Specific elements */
+.hero-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  margin-bottom: 1rem;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  color: #e3f2fd;
+  margin-bottom: 2rem;
+}
+
+.chat-bubble-ai {
+  background: #e3f2fd;
+  border-radius: 20px 20px 20px 0;
+  padding: 15px;
+  margin-bottom: 15px;
+  max-width: 80%;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.chat-bubble-user {
+  background: #007bff;
+  color: white;
+  border-radius: 20px 20px 0 20px;
+  padding: 15px;
+  margin-bottom: 15px;
+  max-width: 80%;
+  align-self: flex-end;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+/* Mic Button */
+.mic-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #dc3545;
+  color: white;
+  border: none;
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+  transition: all 0.3s ease;
+}
+
+.mic-btn.recording {
+  animation: pulse 1.5s infinite;
+  background: #c82333;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 15px rgba(220, 53, 69, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(220, 53, 69, 0); }
+}
+
+/* Stars */
+.stars {
+  color: #ffc107;
+  font-size: 1.2rem;
+}

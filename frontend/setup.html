@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Interview - Interview Practice Partner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container d-flex flex-column justify-content-center align-items-center flex-grow-1 fade-in py-5">
+        <div class="glass-card w-100" style="max-width: 600px; position: relative; overflow: hidden;">
+            <h2 class="text-center mb-4 text-primary fw-bold">Interview Setup</h2>
+            
+            <form id="setupForm" enctype="multipart/form-data">
+                
+                <!-- STEP 1: Basic Details -->
+                <div id="step1">
+                    <h5 class="mb-3 text-secondary">Step 1: Role & Experience</h5>
+                    <div class="mb-3">
+                        <label for="candidateName" class="form-label fw-bold">Candidate Name</label>
+                        <input type="text" class="form-control" id="candidateName" required placeholder="e.g. Priyanka">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="role" class="form-label fw-bold">Job Role</label>
+                    <select class="form-select" id="role" required>
+                        <option value="Software Engineer">Software Engineer</option>
+                        <option value="Frontend Developer">Frontend Developer</option>
+                        <option value="Backend Developer">Backend Developer</option>
+                        <option value="Full Stack Developer">Full Stack Developer</option>
+                        <option value="Data Analyst">Data Analyst</option>
+                        <option value="Data Scientist">Data Scientist</option>
+                        <option value="AI/ML Engineer">AI/ML Engineer</option>
+                        <option value="DevOps Engineer">DevOps Engineer</option>
+                        <option value="Product Manager">Product Manager</option>
+                        <option value="UI/UX Designer">UI/UX Designer</option>
+                        <option value="Business Analyst">Business Analyst</option>
+                        <option value="Sales Executive">Sales Executive</option>
+                        <option value="Marketing Executive">Marketing Executive</option>
+                        <option value="HR">HR</option>
+                        <option value="Customer Support">Customer Support</option>
+                        <option value="Retail Associate">Retail Associate</option>
+                        <option value="Finance Analyst">Finance Analyst</option>
+                        <option value="Others">Others (Custom Role)</option>
+                    </select>
+                    <div id="customRoleWrapper" class="mt-2 d-none">
+                        <input type="text" class="form-control" id="customRole" placeholder="Type your job role (e.g. Embedded Systems Engineer)">
+                    </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="experienceLevel" class="form-label fw-bold">Experience Level</label>
+                            <select class="form-select" id="experienceLevel" required>
+                                <option value="Fresher">Fresher</option>
+                                <option value="1-3 Years">1-3 Years</option>
+                                <option value="Senior">Senior</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mt-3 mt-md-0">
+                            <label for="difficulty" class="form-label fw-bold">Difficulty</label>
+                            <select class="form-select" id="difficulty" required>
+                                <option value="Easy">Easy</option>
+                                <option value="Medium" selected>Medium</option>
+                                <option value="Hard">Hard</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="interviewType" class="form-label fw-bold">Interview Type</label>
+                        <select class="form-select" id="interviewType" required>
+                            <option value="Technical">Technical</option>
+                            <option value="HR">HR</option>
+                            <option value="Behavioral">Behavioral</option>
+                            <option value="Mixed">Mixed</option>
+                        </select>
+                    </div>
+
+                    <button type="button" class="btn btn-primary-custom w-100 py-2 fs-5" id="nextToStep2Btn">Next: Add Resume</button>
+                </div>
+
+                <!-- STEP 2: Resume / Skills -->
+                <div id="step2" class="d-none">
+                    <h5 class="mb-3 text-secondary">Step 2: Resume & Match Score</h5>
+                    <p class="small text-muted">Upload your resume (PDF) OR paste your skills below so the AI can evaluate your fit and tailor the interview.</p>
+                    
+                    <div class="mb-3">
+                        <label for="resumeFile" class="form-label fw-bold">Upload Resume (PDF)</label>
+                        <input class="form-control" type="file" id="resumeFile" accept=".pdf">
+                    </div>
+                    
+                    <div class="text-center my-2 text-muted fw-bold">OR</div>
+                    
+                    <div class="mb-4">
+                        <label for="skillsText" class="form-label fw-bold">Paste Skills / Resume Text</label>
+                        <textarea class="form-control" id="skillsText" rows="4" placeholder="Type your core skills, experience, or copy-paste your resume text here..."></textarea>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary-custom w-50 py-2" id="backToStep1Btn">Back</button>
+                        <button type="button" class="btn btn-primary-custom w-50 py-2" id="evaluateBtn">Check Fit & Continue</button>
+                    </div>
+                </div>
+
+                <!-- STEP 3: ATS Score Result -->
+                <div id="step3" class="d-none text-center">
+                    <h5 class="mb-3 text-secondary">Step 3: Evaluation Complete</h5>
+                    
+                    <div class="mb-4 p-4 rounded bg-light border border-2 border-primary">
+                        <h4 class="text-primary mb-1">Resume Match Score</h4>
+                        <div class="display-3 fw-bold" id="matchScoreDisplay">0/100</div>
+                        <p class="mt-3 text-dark" id="matchAnalysisDisplay">Analyzing...</p>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-secondary-custom w-50 py-2" id="backToStep2Btn">Edit Resume</button>
+                        <button type="submit" class="btn btn-primary-custom w-50 py-2" id="startBtn">Start Interview</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

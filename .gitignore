@@ -1,0 +1,3 @@
+backend/.env
+backend/database.db
+backend/__pycache__/
