@@ -6,6 +6,21 @@
 
 An AI-powered full-stack web application designed to help candidates prepare for their dream jobs by conducting realistic, interactive mock interviews with real-time feedback.
 
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Interview Workflow](#interview-workflow)
+- [Screenshots](#screenshots)
+- [Folder Structure](#folder-structure)
+- [Tech Stack](#tech-stack)
+- [Setup Instructions](#setup-instructions)
+- [Gemini API Setup](#gemini-api-setup)
+- [How Voice Works](#how-voice-works)
+- [Future Enhancements](#future-enhancements)
+- [Author](#author)
+
 ## Project Overview
 
 Interview Practice Partner acts as a virtual interviewer. Instead of just asking standard questions, the AI dynamically generates contextual and follow-up questions based on the chosen job role, experience level, and the candidate's previous answers. 
