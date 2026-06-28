@@ -1,4 +1,7 @@
-const API_BASE_URL = 'https://interview-practice-partner-uz4r.onrender.com';
+const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? 'http://localhost:5000'
+    : 'https://interview-practice-partner-uz4r.onrender.com';
+
 
 // Auth guard — redirect to login if not logged in
 const _userId   = localStorage.getItem('ipp_user_id');
@@ -192,7 +195,7 @@ let currentQuestionNumber = 0;
 let maxQuestionsLimit = sessionStorage.getItem('max_questions') ? parseInt(sessionStorage.getItem('max_questions')) : 15;
 let isFetchingQuestion = false;
 
-// Timer Logic
+// Interview Timer Logic
 let timerSeconds = 0;
 let timerInterval = null;
 
@@ -210,21 +213,16 @@ function stopTimer() {
     if (timerInterval) clearInterval(timerInterval);
 }
 
-// Speech Recognition Logic Removed
-
+// AI Voice Synthesis
 function speakText(text) {
     if (voiceToggle && voiceToggle.checked && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
         const voices = window.speechSynthesis.getVoices();
         const englishVoice = voices.find(v => v.lang.startsWith('en') && v.name.includes('Google'));
-        if (englishVoice) {
-            utterance.voice = englishVoice;
-        }
-        
+        if (englishVoice) utterance.voice = englishVoice;
         window.speechSynthesis.speak(utterance);
     }
 }
@@ -237,9 +235,225 @@ function addMessage(text, isUser = false) {
     chatContainer.scrollTop = chatContainer.scrollHeight;
 }
 
+// ─────────────────────────────────────────
+//  VIDEO RECORDER MODULE
+// ─────────────────────────────────────────
+
+const videoFeed          = document.getElementById('videoFeed');
+const videoWrapper       = document.getElementById('videoWrapper');
+const cameraPlaceholder  = document.getElementById('cameraPlaceholder');
+const cameraWarning      = document.getElementById('cameraWarning');
+const startRecordBtn     = document.getElementById('startRecordBtn');
+const stopRecordBtn      = document.getElementById('stopRecordBtn');
+const playbackBtn        = document.getElementById('playbackBtn');
+const recIndicator       = document.getElementById('recIndicator');
+const recDuration        = document.getElementById('recDuration');
+const transcriptStatus   = document.getElementById('transcriptStatus');
+const interimTextEl      = document.getElementById('interimText');
+const speechUnsupported  = document.getElementById('speechUnsupported');
+const playbackVideo      = document.getElementById('playbackVideo');
+const downloadBtn        = document.getElementById('downloadRecordingBtn');
+
+let cameraStream        = null;   // MediaStream from getUserMedia
+let mediaRecorder       = null;   // MediaRecorder instance
+let recordedChunks      = [];     // Video blobs
+let recordingBlobUrl    = null;   // Object URL for playback
+let recognition         = null;   // SpeechRecognition instance
+let finalTranscript     = '';     // Accumulated confirmed transcript
+let recSeconds          = 0;      // Recording duration counter
+let recDurationInterval = null;   // Interval for duration display
+
+// Check if speech recognition is available
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const hasSpeechSupport  = !!SpeechRecognition;
+
+/**
+ * Request camera + microphone access and attach stream to <video>
+ */
+async function initCamera() {
+    if (!videoFeed) return; // Not on interview page
+
+    try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        videoFeed.srcObject = cameraStream;
+        videoFeed.classList.add('active');
+        if (cameraPlaceholder) cameraPlaceholder.classList.add('d-none');
+
+        // Show the record button (or fallback notice if no speech support)
+        if (hasSpeechSupport) {
+            if (startRecordBtn) startRecordBtn.classList.remove('d-none');
+        } else {
+            if (speechUnsupported) speechUnsupported.classList.remove('d-none');
+        }
+    } catch (err) {
+        console.warn('Camera/mic access denied or unavailable:', err);
+        if (cameraWarning) cameraWarning.classList.remove('d-none');
+
+        // Still show speech-only button if mic-only might work? No — keep it simple
+        if (!hasSpeechSupport && speechUnsupported) {
+            speechUnsupported.classList.remove('d-none');
+        }
+    }
+}
+
+/**
+ * Start recording video blobs + live speech recognition
+ */
+function startRecording() {
+    if (!cameraStream) return;
+
+    // — MediaRecorder (video + audio) —
+    recordedChunks = [];
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+        ? 'video/webm;codecs=vp9,opus'
+        : 'video/webm';
+    mediaRecorder = new MediaRecorder(cameraStream, { mimeType });
+    mediaRecorder.ondataavailable = e => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: 'video/webm' });
+        if (recordingBlobUrl) URL.revokeObjectURL(recordingBlobUrl);
+        recordingBlobUrl = URL.createObjectURL(blob);
+        if (playbackVideo) playbackVideo.src = recordingBlobUrl;
+        if (downloadBtn)   downloadBtn.href  = recordingBlobUrl;
+        if (playbackBtn)   playbackBtn.classList.remove('d-none');
+    };
+    mediaRecorder.start(250); // collect data every 250 ms
+
+    // — SpeechRecognition —
+    finalTranscript = '';
+    recognition = new SpeechRecognition();
+    recognition.continuous      = true;
+    recognition.interimResults  = true;
+    recognition.lang            = 'en-US';
+    recognition.maxAlternatives = 1;
+
+    recognition.onresult = (event) => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+                finalTranscript += transcript + ' ';
+            } else {
+                interim += transcript;
+            }
+        }
+        // Show live interim text in the transcript status bar
+        if (interimTextEl) {
+            interimTextEl.textContent = interim || 'Listening…';
+        }
+        // Mirror into the textarea (editable) — interim shown italic
+        if (answerInput) {
+            const combined = finalTranscript + interim;
+            answerInput.value = combined;
+            answerInput.classList.toggle('interim', !!interim);
+            checkInput();
+        }
+    };
+
+    recognition.onerror = (e) => {
+        console.warn('SpeechRecognition error:', e.error);
+        if (e.error === 'no-speech') return; // benign
+    };
+
+    recognition.onend = () => {
+        // Auto-restart while still in recording state (browser sometimes cuts off recognition)
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+            try { recognition.start(); } catch(e) {}
+        }
+    };
+
+    recognition.start();
+
+    // — UI transition —
+    if (startRecordBtn)    startRecordBtn.classList.add('d-none');
+    if (stopRecordBtn)     stopRecordBtn.classList.remove('d-none');
+    if (recIndicator)      recIndicator.classList.remove('d-none');
+    if (recDuration)       recDuration.classList.remove('d-none');
+    if (transcriptStatus)  transcriptStatus.classList.remove('d-none');
+    if (videoWrapper)      videoWrapper.classList.add('recording-ring');
+    if (interimTextEl)     interimTextEl.textContent = 'Listening…';
+
+    // Stop AI voice if speaking
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+
+    // Recording duration counter
+    recSeconds = 0;
+    updateRecDuration();
+    recDurationInterval = setInterval(() => {
+        recSeconds++;
+        updateRecDuration();
+    }, 1000);
+}
+
+function updateRecDuration() {
+    if (!recDuration) return;
+    const m = Math.floor(recSeconds / 60);
+    const s = String(recSeconds % 60).padStart(2, '0');
+    recDuration.textContent = `${m}:${s}`;
+}
+
+/**
+ * Stop recording — finalise transcript and make it submittable
+ */
+function stopRecording() {
+    // ✅ Snapshot whatever is showing in the textarea FIRST (includes interim words)
+    // This prevents Chrome wiping interim results when recognition.stop() fires
+    const snapshotText = (answerInput ? answerInput.value : '') || finalTranscript;
+
+    // Stop speech recognition
+    if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+        recognition = null;
+    }
+
+    // Stop MediaRecorder
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+    }
+
+    // Stop recording duration timer and RESET to 0:00
+    clearInterval(recDurationInterval);
+    recSeconds = 0;
+    if (recDuration) {
+        recDuration.textContent = '0:00';
+        recDuration.classList.add('d-none');   // hide until next recording starts
+    }
+
+    // ✅ Restore the best available transcript (snapshot beats empty finalTranscript)
+    if (answerInput) {
+        const bestText = finalTranscript.trim() || snapshotText.trim();
+        answerInput.value = bestText;
+        answerInput.classList.remove('interim');
+        checkInput();
+    }
+
+    // — UI transition —
+    if (stopRecordBtn)     stopRecordBtn.classList.add('d-none');
+    if (startRecordBtn)    startRecordBtn.classList.remove('d-none');
+    if (recIndicator)      recIndicator.classList.add('d-none');
+    if (videoWrapper)      videoWrapper.classList.remove('recording-ring');
+    if (transcriptStatus)  transcriptStatus.classList.add('d-none');
+}
+
+// Playback modal trigger
+if (playbackBtn) {
+    playbackBtn.addEventListener('click', () => {
+        const modal = new bootstrap.Modal(document.getElementById('playbackModal'));
+        modal.show();
+    });
+}
+
+// Wiring record / stop buttons
+if (startRecordBtn) startRecordBtn.addEventListener('click', startRecording);
+if (stopRecordBtn)  stopRecordBtn.addEventListener('click', stopRecording);
+
+// ─────────────────────────────────────────
+//  INTERVIEW Q&A LOGIC
+// ─────────────────────────────────────────
+
 async function fetchNextQuestion() {
     if (isFetchingQuestion) return;
-    
+
     const interviewId = sessionStorage.getItem('interview_id');
     if (!interviewId) {
         window.location.href = 'index.html';
@@ -250,6 +464,8 @@ async function fetchNextQuestion() {
     loadingIndicator.classList.remove('d-none');
     answerInput.disabled = true;
     submitAnswerBtn.disabled = true;
+    // Disable record button while fetching
+    if (startRecordBtn) startRecordBtn.disabled = true;
 
     try {
         const response = await fetch(`${API_BASE_URL}/next-question`, {
@@ -258,27 +474,26 @@ async function fetchNextQuestion() {
             body: JSON.stringify({ interview_id: interviewId })
         });
         const data = await response.json();
-        
+
         loadingIndicator.classList.add('d-none');
-        
+
         if (data.question) {
-            currentQuestionId = data.question_id;
+            currentQuestionId     = data.question_id;
             currentQuestionNumber = data.question_number;
-            
+
             questionHeader.innerText = `Question ${currentQuestionNumber} of ${maxQuestionsLimit}`;
             addMessage(data.question, false);
             speakText(data.question);
-            
+
             answerInput.disabled = false;
-            answerInput.value = '';
+            answerInput.value    = '';
             answerInput.focus();
+            if (startRecordBtn) startRecordBtn.disabled = false;
         } else {
             console.error('Error fetching question:', data);
             addMessage("I'm sorry, I encountered an error generating the next question. Please try finishing the interview.", false);
             finishInterviewBtn.classList.remove('d-none');
             submitAnswerBtn.classList.add('d-none');
-            
-            // Re-enable inputs if user wants to type something anyway
             answerInput.disabled = false;
         }
     } catch (error) {
@@ -294,19 +509,24 @@ async function submitAnswer() {
     const answer = answerInput.value.trim();
     if (!answer) return;
 
+    // Stop any ongoing recording before submitting
+    if (mediaRecorder && mediaRecorder.state === 'recording') stopRecording();
+
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 
     addMessage(answer, true);
-    
-    answerInput.value = '';
+
+    answerInput.value    = '';
     answerInput.disabled = true;
     submitAnswerBtn.disabled = true;
+    if (startRecordBtn) startRecordBtn.disabled = true;
+    if (playbackBtn)    playbackBtn.classList.add('d-none');
 
     try {
         await fetch(`${API_BASE_URL}/submit-answer`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
+            body: JSON.stringify({
                 question_id: currentQuestionId,
                 answer: answer
             })
@@ -323,18 +543,15 @@ async function submitAnswer() {
     } catch (error) {
         console.error('Error:', error);
         alert('Failed to submit answer. Please try again.');
-        answerInput.disabled = false;
+        answerInput.disabled     = false;
         submitAnswerBtn.disabled = false;
+        if (startRecordBtn) startRecordBtn.disabled = false;
     }
 }
 
 function checkInput() {
     if (answerInput && submitAnswerBtn) {
-        if (answerInput.value.trim().length > 0) {
-            submitAnswerBtn.disabled = false;
-        } else {
-            submitAnswerBtn.disabled = true;
-        }
+        submitAnswerBtn.disabled = answerInput.value.trim().length === 0;
     }
 }
 
@@ -357,8 +574,16 @@ if (finishInterviewBtn) {
         finishInterviewBtn.disabled = true;
         finishInterviewBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Generating Report...';
         stopTimer();
-        
-        // Also save final answer if there is one written
+
+        // Stop recording if still active
+        if (mediaRecorder && mediaRecorder.state === 'recording') stopRecording();
+
+        // Release camera
+        if (cameraStream) {
+            cameraStream.getTracks().forEach(t => t.stop());
+        }
+
+        // Save final answer if written
         const finalAnswer = answerInput.value.trim();
         if (finalAnswer && currentQuestionNumber >= maxQuestionsLimit) {
             try {
@@ -369,7 +594,7 @@ if (finishInterviewBtn) {
                 });
             } catch(e) {}
         }
-        
+
         try {
             const response = await fetch(`${API_BASE_URL}/finish-interview`, {
                 method: 'POST',
@@ -377,18 +602,18 @@ if (finishInterviewBtn) {
                 body: JSON.stringify({ interview_id: interviewId })
             });
             const data = await response.json();
-            
+
             if (data.report_id) {
                 window.location.href = 'feedback.html';
             } else {
                 alert('Error generating report.');
-                finishInterviewBtn.disabled = false;
+                finishInterviewBtn.disabled  = false;
                 finishInterviewBtn.innerHTML = 'Finish Interview';
             }
         } catch (error) {
             console.error('Error:', error);
             alert('Server connection failed.');
-            finishInterviewBtn.disabled = false;
+            finishInterviewBtn.disabled  = false;
             finishInterviewBtn.innerHTML = 'Finish Interview';
         }
     });
@@ -397,6 +622,7 @@ if (finishInterviewBtn) {
 // Initial load for interview page
 if (chatContainer && sessionStorage.getItem('interview_id')) {
     startTimer();
+    initCamera();       // ← kick off camera
     wakeupAndStart();
 }
 

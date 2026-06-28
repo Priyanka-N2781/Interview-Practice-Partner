@@ -149,3 +149,216 @@ body {
   color: #ffc107;
   font-size: 1.2rem;
 }
+
+/* =============================================
+   VIDEO RECORDING PANEL
+   ============================================= */
+
+.video-panel {
+  overflow: hidden;
+  position: relative;
+}
+
+/* Wrapper keeps a consistent aspect ratio */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #0f172a;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* The actual <video> element — mirrored for selfie feel */
+.video-feed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* mirror */
+  border-radius: 14px;
+  display: none; /* hidden until camera is active */
+  transition: opacity 0.3s ease;
+}
+
+.video-feed.active {
+  display: block;
+}
+
+/* Animated glowing border when recording */
+.video-wrapper.recording-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  border: 3px solid #ef4444;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  animation: recordingPulse 1.4s infinite;
+  pointer-events: none;
+}
+
+@keyframes recordingPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+  70%  { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+/* Camera off placeholder */
+.camera-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  gap: 0.5rem;
+}
+
+.camera-placeholder i {
+  font-size: 2.5rem;
+}
+
+.camera-placeholder p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.camera-placeholder.d-none {
+  display: none !important;
+}
+
+/* Recording duration overlay (bottom-right of video) */
+.rec-duration {
+  position: absolute;
+  bottom: 8px;
+  right: 10px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  letter-spacing: 0.05em;
+}
+
+/* REC Indicator badge */
+.rec-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 20px;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  animation: recBlink 1s step-start infinite;
+  display: inline-block;
+}
+
+@keyframes recBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+/* Live transcript status bar */
+.transcript-status {
+  background: rgba(59, 130, 246, 0.07);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  min-height: 36px;
+  max-height: 80px;
+  overflow-y: auto;
+}
+
+/* Record button */
+.btn-record {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 50px;
+  padding: 10px 0;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+}
+
+.btn-record:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: scale(1.04);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+  color: #fff;
+}
+
+/* Stop button */
+.btn-stop-record {
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  border-radius: 50px;
+  padding: 10px 0;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(249, 115, 22, 0.35);
+}
+
+.btn-stop-record:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+  color: #fff;
+}
+
+/* Answer textarea — styled to look premium */
+.answer-textarea {
+  border-radius: 14px;
+  border: 1.5px solid rgba(0, 86, 179, 0.25);
+  background: rgba(255, 255, 255, 0.9);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  resize: none;
+}
+
+.answer-textarea:focus {
+  border-color: #0056b3;
+  box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.15);
+  outline: none;
+}
+
+/* Italic styling when interim transcript fills the box */
+.answer-textarea.interim {
+  font-style: italic;
+  color: #64748b;
+}
+
+/* Camera warning */
+.camera-warning {
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.3);
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+}
+
+/* Speech unsupported notice */
+.speech-unsupported {
+  background: rgba(100, 116, 139, 0.1);
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  border-radius: 10px;
+  padding: 6px 10px;
+  text-align: center;
+}
